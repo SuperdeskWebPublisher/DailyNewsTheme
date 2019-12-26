@@ -1,9 +1,35 @@
 <article class="articleListSmall__item">
 
-    {% set imgCaption = "Default image" %}
-    {% set rend610 = "{{ asset('theme/img/article_img/610x380.png') }}" %}
+{% set rend400 = null %}
+{% set webp400 = false %}
+{% set fallbackJPGsmall = null %}
+{% set mimeType = null %} 
 
-    {% include 'partials/image610x380.html.twig' with {'imgCaption' : imgCaption, 'rend610' : rend610, 'where' : 'listSmall' } %}
+{% if article.featureMedia %}
+  {% gimme rendition with { 'media': article.featureMedia, 'name': '400x240', 'fallback': 'thumbnail' } %}
+    {% set rend400 = path(rendition) %}
+    {% set fallbackJPGsmall = path(rendition) %}
+    {% set imgCaption = article.featureMedia.description %}
+    {% set imgCredit = article.featureMedia.byLine %}
+    {% if rendition.isConvertedToWebp %}
+      {% set rend400 = path(rendition, { webp: true }) %}
+      {% set webp400 = true %}
+    {% endif %}
+  {% endgimme %}
+{% else %}
+    {% set imgCaption = "DailyNews Theme" %}
+    {% set fallbackJPGsmall = "/public/img/article_img/400x240.jpg" %}
+{% endif %}
+
+  <a class="articleListSmall__image" href="{{ url(article) }}">
+    <figure>
+      <picture>
+          {% if webp400 %}<source data-srcset="{{ rend400 }}" type="image/webp">{% endif %}                  
+          <source data-srcset="{{ fallbackJPGsmall }}" type="{{ mimeType }}">
+          <img class="lazyload" style="display: block" data-src="{{ fallbackJPGsmall }}" alt="{{ imgCaption }}" title="{{ imgCaption }} {% if imgCredit != '' %}(Foto: {{ imgCredit }}){% endif %}" width="90">
+      </picture>
+    </figure>
+  </a>
 
     <h4 class="articleListSmall__headline"><a href="{{ url(article) }}">{{ article.title }}</a></h4>
     <div class="articleMetadata">

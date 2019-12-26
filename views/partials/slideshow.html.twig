@@ -1,19 +1,32 @@
-{% set imgCounter = 0 %}
+<div class="gallery marginTop30 marginBottom30">
+  
+{% gimmelist slideshow from slideshows with { article: gimme.article } %}
 
-<div id="links">
-{% gimmelist media from articleMedia with {'article': article} %}
-  {% set linkThumb = "{{ asset('theme/img/article_img/610x380.png') }}" %}
-  {% set linkFull = "{{ asset('theme/img/article_img/1250x600.png') }}" %}
-  {% if media.renditions is iterable %}   
-    {% for rendition in media.renditions %} 
-      {% if rendition.name == '610x380' %}{% set linkThumb = path(rendition) %}{% endif %}
-      {% if rendition.name == '1250x600' %}{% set linkFull = path(rendition) %}{% set imgCaption = media.body %}{% endif %}
-    {% endfor %}
-    {% if linkThumb and linkFull %}
-      {% set imgCounter = imgCounter + 1 %}{% if imgCounter == 1 %}<h2>Article Gallery</h2>{% endif %}
-      <a href="{{ linkFull }}" title="{{ media.body }}" data-gallery><img src="{{ linkThumb }}" alt="{{ media.body }}" width="200" height="124"></a>
-      
-    {% endif %}
+  {% gimmelist slideshowItem from slideshowItems|limit(99) with { article: gimme.article, slideshow: slideshow } %}
+  {% if loop.first %}
+  <h4>Gallery</h4>
+  <ul id="imageGallery">
   {% endif %}
-{% endgimmelist %}          
+    {% set bigPic = null %}
+    {% set thumbPic = null %}
+    {% set captionPic = "" %}
+      {% gimme rendition with {'media': slideshowItem.articleMedia, 'name': '1250x600', 'fallback': 'original' } %}
+        {% set bigPic = url(rendition) %}
+        {% set captionPic = media.description %}
+      {% endgimme %}
+    {% gimme rendition with {'media': slideshowItem.articleMedia, 'name': '610x380', 'fallback': '300x220' } %}
+        {% set thumbPic = url(rendition) %}
+      {% endgimme %}
+
+      <li data-thumb="{{ thumbPic }}" data-src="{{ bigPic }}">
+          <img src="{{ bigPic }}" alt="{{ captionPic }}" />
+        </li>
+    {% if loop.last %}
+    </ul>
+    {% endif %}
+  {% endgimmelist %}
+</ul>
+
+{% endgimmelist %}
+
 </div>

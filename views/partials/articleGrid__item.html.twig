@@ -1,9 +1,52 @@
 <article class="articleGrid__item {{ class }}">
 
-{% set imgCaption = "Default image" %}
-{% set rend610 = "{{ asset('theme/img/article_img/610x380.png') }}" %}
+{% set rend610 = null %}
+{% set rend400 = null %}
+{% set webp610 = false %}
+{% set webp400 = false %}
+{% set fallbackJPGsmall = null %}
+{% set fallbackJPGbig = null %}
+{% set mimeType = null %}  
 
-{% include 'partials/image610x380.html.twig' with {'imgCaption' : imgCaption, 'rend610' : rend610, 'where' : 'grid' } %}
+{% if article.featureMedia %}
+  {% gimme rendition with { 'media': article.featureMedia, 'name': '610x380', 'fallback': '400x240' } %}
+    {% set rend610 = path(rendition) %}
+    {% set fallbackJPGbig = path(rendition) %}
+    {% set mimeType = article.featureMedia.mimetype %}
+    {% set imgCaption = article.featureMedia.description %}
+    {% set imgCredit = article.featureMedia.byLine %}
+    {% if rendition.isConvertedToWebp %}
+      {% set rend610 = path(rendition, { webp: true }) %}
+      {% set webp610 = true %}
+    {% endif %} 
+  {% endgimme %}
+
+  {% gimme rendition with { 'media': article.featureMedia, 'name': '400x240', 'fallback': 'thumbnail' } %}
+    {% set rend400 = path(rendition) %}
+    {% set fallbackJPGsmall = path(rendition) %}
+    {% if rendition.isConvertedToWebp %}
+      {% set rend400 = path(rendition, { webp: true }) %}
+      {% set webp400 = true %}
+    {% endif %}
+  {% endgimme %}
+
+{% else %}
+    {% set imgCaption = "DailyNews theme" %}
+    {% set fallbackJPGsmall = "/public/img/article_img/400x240.jpg" %}
+    {% set fallbackJPGbig = "/public/img/article_img/610x380.jpg" %}
+{% endif %}
+
+  <a class="articleGrid__image articleGrid__image--smallMobile" href="{{ url(article) }}">
+    <figure>
+      <picture>
+          {% if webp400 %}<source media="(max-width: 680px)" data-srcset="{{ rend400 }}" type="image/webp">{% endif %}                 
+          <source media="(max-width: 680px)" data-srcset="{{ fallbackJPGsmall }}" type="{{ mimeType }}">
+          {% if webp610 %}<source media="(min-width: 681px)" data-srcset="{{ rend610 }}" type="image/webp">{% endif %}
+          <source media="(min-width: 681px)" data-srcset="{{ fallbackJPGbig }}" type="{{ mimeType }}">
+          <img class="lazyload" style="display: block; margin: 0 auto;" data-src="{{ fallbackJPGbig }}" alt="{{ imgCaption }}" title="{{ imgCaption }} {% if imgCredit != '' %}(Foto: {{ imgCredit }}){% endif %}">
+      </picture>
+    </figure>
+  </a>
 
   <a href="{{ url(article) }}">
     <span class="articleGrid__kicker">{{ article.route.name }}</span>

@@ -1,5 +1,5 @@
-{% container 'listMost' with {
-'cssClass': 'accordion'
-}%}
-
-{% endcontainer %}
+<div class="accordion">
+{% include 'widgets/listMost.html.twig' with { 'CLname': 'Most read' } %}
+{% include 'widgets/listMost.html.twig' with { 'CLname': 'Most commented' } %}
+{% include 'widgets/listMost.html.twig' with { 'CLname': 'Most shared' } %}
+</div>

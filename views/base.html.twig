@@ -1,4 +1,4 @@
-{% set version = '1528810593373' %}
+{% set version = '1569578098068' %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -126,7 +126,7 @@
       <div class="row">
 
         <div class="verticalMiddle col-md-5 col-sm-5 col-xs-12">
-          <a class="header__logo" href="{{ url('home') }}"><img src="{{ themeLogo(asset('/public/img/logo.svg')) }}"></a>
+          <a class="header__logo" href="/"><img src="{{ themeLogo(asset('/public/img/logo.svg')) }}"></a>
         </div>
 
         <div class="header__search verticalMiddle col-sm-7 col-md-7 col-xs-12">
@@ -145,11 +145,7 @@
 
   </header>
 
-{% container 'mainNav' %}
-
-{# Content of this container is defined by menu widget which is linked to it. Template used for this menu is widgets/menu1.html.twig #}
-
-{% endcontainer %}
+{% include 'widgets/menu1.html.twig' %}
 
   {% gimmelist author from authors|limit(3) with { role: ["featured"] } %}
   {% if loop.first %}
@@ -179,14 +175,10 @@
     <div class="row">
 
       <div class="footer__logo col-md-3 col-sm-3 col-xs-12">
-        <a href="{{ url('home') }}"><img src="{{ asset('theme/img/logo-white.svg') }}"></a>
+        <a href="/"><img src="{{ asset('theme/img/logo-white.svg') }}"></a>
       </div>
 
-{% container 'footerNav' %}
-
-<!-- Content of this container is defined by menu widget which is linked to it. Template used for this menu is widgets/menu2.html.twig -->
-
-{% endcontainer %}      
+{% include 'widgets/menu2.html.twig' %}     
 
       <div class="footer__section col-sm-2 col-md-2 col-xs-12">
         <h4 class="footer__sectionHeadline">Social</h4>
@@ -209,8 +201,12 @@
         </div>
 
         <div class="footer__text">
-          <p>© 2017 Sourcefabric All Rights Reserved <br>
-          <a href="#">Terms of Use</a> / <a href="#">Privacy Policy</a></p>
+          <p>© {{ now|date('Y')}} Sourcefabric All Rights Reserved <br>
+            {% gimmelist article from articles|start(2)|limit(2) with {'route' : '/about' } %}
+            <a href="{{ url(article) }}">{{ article.title }}</a>
+            {% if not loop.last %} / {% endif %}
+            {% endgimmelist %}
+          </p>
         </div>
 
       </div>

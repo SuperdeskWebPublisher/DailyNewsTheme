@@ -1,9 +1,9 @@
-{% cache 'contentListMost' ~ listId { gen: contentList } %}
-  {% set accordionIndex = listId %}
+  {% gimme contentList with { contentListName: CLname } %}
+  {% set accordionIndex = contentList.id %}
   <div class="accordion__section">
-    <a class="accordion__sectionTitle {% if accordionIndex == 1 %}active{% endif %}" href="#accordion-{{ accordionIndex }}">{{ contentList.name }}</a>
-    <div id="accordion-{{ accordionIndex }}" class="accordion__sectionContent">
-      {% gimmelist item from contentListItems|limit(5) with { contentListId: listId } %}
+    <a class="accordion__sectionTitle {% if CLname == "Most read" %}active{% endif %}"  href="#accordion-{{ accordionIndex }}">{{ contentList.name }}</a>
+    <div id="accordion-{{ accordionIndex }}" class="accordion__sectionContent {% if CLname == "Most read" %}open{% endif %}" {% if CLname == "Most read" %}style="display: block"{% endif %}>
+      {% gimmelist item from contentListItems|limit(5) with { contentListId: contentList.id } %}
       <article class="accordion__sectionItem">
         <h4 class="accordion__sectionHeadline"><a href="{{ url(item.content) }}">{{ item.content.title }}</a></h4>
         <span class="accordion__sectionCount">120.406 views</span>
@@ -11,4 +11,4 @@
       {% endgimmelist %}
     </div>
   </div>
-{% endcache %}
+  {% endgimme %}

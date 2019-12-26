@@ -201,15 +201,36 @@ $(document).ready(function() {
 
 /* END USER MGMNT */
 
+// slideshow gallery
+
+    var gallery = $('#imageGallery').lightSlider({
+        gallery: true,
+        item: 1,
+        loop: true,
+        thumbItem: 12,
+        slideMargin: 0,
+        controls: true,
+        enableDrag: true,
+        currentPagerPosition:'left',
+        onAfterSlide: function (el) {
+          changeCaptionAndUrl();
+          console.log("onAfterSlide");
+        },
+        onSliderLoad: function(el) {
+          //Assigning numbers and url to thumbnails          
+          $('.gallery--fullScreenWrap .lSGallery li').each(function(){
+            var url = window.location.origin + window.location.pathname;
+            $(this).find('a').attr('href', url + '?slika=' + parseInt($(this).index() + 1));
+          });
+
+          // Cloning and matching caption in the sidebar on slider load
+          var activeCaption = $('.lslide.active p').clone();
+          $('#clonedCaption').html(activeCaption);
+          
+          console.log("onSliderLoad");
+        }
+    });
+
+    if(urlImageNo) gallery.goToSlide(parseInt(urlImageNo))
+
 });
-
-// blueimp gallery
-
-document.getElementById('links').onclick = function (event) {
-    event = event || window.event;
-    var target = event.target || event.srcElement,
-        link = target.src ? target.parentNode : target,
-        options = {index: link, event: event},
-        links = this.getElementsByTagName('a');
-    blueimp.Gallery(links, options);
-};

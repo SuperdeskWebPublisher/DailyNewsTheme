@@ -1,40 +1,58 @@
 <article class="mainArticle {{class}}">
 
-            <figure class="mainArticle__image {% if image =='small' %}mainArticle__image--small{% endif %} ">
-
-{% set imgCaption = "" %}
-{% set rend610 = "{{ asset('theme/img/article_img/610x380.png') }}" %}
-{% set rend1250 = "{{ asset('theme/img/article_img/1250x600.png') }}" %}
+{% set rend1250 = null %}
+{% set rend610 = null %}
+{% set webp1250 = false %}
+{% set webp610 = false %}
+{% set fallbackJPGsmall = null %}
+{% set fallbackJPGbig = null %}
+{% set mimeType = null %}  
 
   {% if article.featureMedia %}
-    {% gimme rendition with { 'media': article.featureMedia, 'name': '610x380' } %}
-      {% set rend610 = path(rendition) %}
-      {% set imgCaption = article.featureMedia.description %}
-    {% endgimme %}
-    {% gimme rendition with { 'media': article.featureMedia, 'name': '1250x600' } %}
+
+    {% gimme rendition with { 'media': article.featureMedia, 'name': '1250x600', 'fallback': '610x380' } %}
       {% set rend1250 = path(rendition) %}
+      {% set fallbackJPGbig = path(rendition) %}
+      {% if rendition.isConvertedToWebp %}
+        {% set rend1250 = path(rendition, { webp: true }) %}
+        {% set webp1250 = true %}
+      {% endif %} 
     {% endgimme %}
+
+    {% gimme rendition with { 'media': article.featureMedia, 'name': '610x380', 'fallback': '400x240' } %}
+      {% set rend610 = path(rendition) %}
+      {% set fallbackJPGsmall = path(rendition) %}
+      {% set mimeType = article.featureMedia.mimetype %}
+      {% set imgCaption = article.featureMedia.description %}
+      {% set imgCredit = article.featureMedia.byLine %}      
+      {% if rendition.isConvertedToWebp %}
+        {% set rend610 = path(rendition, { webp: true }) %}
+        {% set webp610 = true %}
+      {% endif %}
+    {% endgimme %}
+
   {% else %}
-    {% gimmelist media from articleMedia|limit(1) with {'article': article} %}
-      {% set imgCaption = media.body %}
-      {% gimme rendition with { media: media, 'name': '610x380' } %}
-           {% set rend610 = path(rendition) %}
-      {% endgimme %}
-      {% gimme rendition with {media: media,  'name': '1250x600' } %}
-           {% set rend1250 = path(rendition) %}
-      {% endgimme %}
-    {% endgimmelist %}
+    {% set imgCaption = "Daily News Theme" %}
+    {% set fallbackJPGsmall = "/public/img/article_img/610x380.jpg" %}
+    {% set fallbackJPGbig = "/public/img/article_img/1250x600.jpg" %}
   {% endif %}
 
-              <a href="{{ url(article) }}">
-                {% if image=='small' %}
-                  <img src="{{ rend610 }}" alt="{{ imgCaption }}"  }}">
-                {% else %}
-                  <img src="{{ rend1250 }}" alt="{{ imgCaption }}" }}">
-                {% endif %}
-              </a>
+  <figure class="mainArticle__image {% if image =='small' %}mainArticle__image--small{% endif %} ">
+    <a href="{{ url(article) }}">
+    <picture>
+      {% if image=='small' %}
+        {% if webp610 %}<source media="(max-width: 680px)" data-srcset="{{ rend610 }}" type="image/webp">{% endif %}                 
+        <source data-srcset="{{ fallbackJPGsmall }}" type="{{ mimeType }}">
+        <img class="lazyload" style="display: block; margin: 0 auto;" data-src="{{ fallbackJPGsmall }}" alt="{{ imgCaption }}" title="{{ imgCaption }} {% if imgCredit != '' %}(Foto: {{ imgCredit }}){% endif %}">
+      {% else %}
+        {% if webp1250 %}<source data-srcset="{{ rend1250 }}" type="image/webp">{% endif %}
+        <source data-srcset="{{ fallbackJPGbig }}" type="{{ mimeType }}">
+        <img class="lazyload" style="display: block; margin: 0 auto;" data-src="{{ fallbackJPGbig }}" alt="{{ imgCaption }}" title="{{ imgCaption }} {% if imgCredit != '' %}(Foto: {{ imgCredit }}){% endif %}">
+      {% endif %}
+    </picture>
+    </a>
+  </figure>
 
-            </figure>
           <div class="mainArticle__text ">
             <a href="{{ url(article) }}">
               <span class="mainArticle__kicker">Lorem ipsum</span>
